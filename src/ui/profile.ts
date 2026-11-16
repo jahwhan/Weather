@@ -218,7 +218,7 @@ export class ProfileChart {
       g.strokeStyle = 'rgba(238,242,248,0.55)';
       g.lineWidth = 1.2;
       g.stroke();
-      g.font = '500 9.5px "JetBrains Mono", monospace';
+      g.font = '500 9.5px -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif';
       g.fillStyle = 'rgba(154,167,188,0.9)';
       g.textAlign = 'left';
       g.fillText(`${Math.round(Math.max(...s.ele))} m`, padX + 2, top + 10);
@@ -255,7 +255,7 @@ export class ProfileChart {
     const fmt = (t: number) => `${Math.round(t)}°`.replace('-', '−');
     const iMax = s.temp.indexOf(Math.max(...s.temp));
     const iMin = s.temp.indexOf(Math.min(...s.temp));
-    g.font = '600 10px "JetBrains Mono", monospace';
+    g.font = '600 10px -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif';
     g.textAlign = 'center';
     g.fillStyle = tempColor(s.temp[iMax]);
     g.fillText(fmt(s.temp[iMax]), clamp(X(s.x[iMax]), 14, W - 14), TY(s.temp[iMax]) - 5);
@@ -265,7 +265,7 @@ export class ProfileChart {
     }
 
     // Beschriftung Start/Ziel
-    g.font = '500 10px "JetBrains Mono", monospace';
+    g.font = '500 10px -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, sans-serif';
     g.fillStyle = 'rgba(154,167,188,0.95)';
     g.textAlign = 'left';
     g.fillText(s.labels[0], padX, H - 1);

@@ -10,7 +10,7 @@ export interface WeatherSample {
   /** relative Feuchte in % */
   humidity: number | null;
   dewPoint: number | null;
-  /** Luftdruck auf Meereshöhe in hPa */
+  /** Luftdruck auf Meereshöhe in hPa (Open-Meteo/MET: MSL aus dem Modell; SwissMetNet: QFF) */
   pressure: number | null;
   /** Gesamtbewölkung in % */
   cloud: number;
@@ -49,7 +49,20 @@ export interface PointWeather {
   current: WeatherSample;
   hourly: WeatherSample[];
   fetchedAt: number;
+  /** Lesbares Modell, z. B. "MeteoSchweiz ICON-CH1" (fehlt, wenn die Quelle es nicht nennt) */
+  model?: string;
+  /** Der "jetzt"-Zustand enthält Messwerte dieser SwissMetNet-Station */
+  observed?: { station: string; name: string; distanceM: number; time: number };
 }
+
+/** Open-Meteo-Modellnamen -> Anzeige */
+export const MODEL_LABEL: Record<string, string> = {
+  meteoswiss_icon_ch1: 'MeteoSchweiz ICON-CH1',
+  meteoswiss_icon_ch2: 'MeteoSchweiz ICON-CH2',
+  meteoswiss_icon_seamless: 'MeteoSchweiz ICON (nahtlos)',
+  best_match: 'Open-Meteo Best Match',
+  'met-no': 'ECMWF über MET Norway',
+};
 
 export const SOURCE_LABEL: Record<WeatherSource, string> = {
   'open-meteo': 'Open-Meteo',

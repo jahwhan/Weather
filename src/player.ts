@@ -105,6 +105,9 @@ export class Player {
   private lastNow = 0;
   private raf = 0;
   private filteredBearing: number | null = null;
+  /** geglättete Neigung, damit die Sichtprüfung im Gebirge nicht ruckelt */
+  private filteredPitch: number | null = null;
+  private filteredZoomDrop = 0;
   onFrame: (f: Frame) => void = () => {};
   onState: (s: Player['state']) => void = () => {};
 
@@ -129,6 +132,8 @@ export class Player {
     this.mountain = ele.length > 0 && (Math.max(...ele) > 900 || (trip?.gain ?? 0) > 450);
     this.t = 0;
     this.filteredBearing = null;
+    this.filteredPitch = null;
+    this.filteredZoomDrop = 0;
   }
 
   play(): void {
@@ -142,6 +147,8 @@ export class Player {
     }
     this.t = 0;
     this.filteredBearing = null;
+    this.filteredPitch = null;
+    this.filteredZoomDrop = 0;
     this.startCam = this.currentCam();
     this.endCam = null;
     this.state = 'playing';
@@ -180,6 +187,8 @@ export class Player {
     }
     this.t = clamp(t, 0, 1);
     this.filteredBearing = null;
+    this.filteredPitch = null;
+    this.filteredZoomDrop = 0;
     this.render(0);
   }
 
@@ -220,13 +229,68 @@ export class Player {
 
   // ------------------------------------------------------------ Kamera
 
+  /**
+   * Folge-Zoom: gegenüber früher ~1,25 Stufen näher am Gelände, damit Regen,
+   * Nebel und Wolkenlicht wirklich zu erkennen sind.
+   */
   private followZoom(): number {
     const trip = this.trip!;
     const km = Math.max(0.3, (trip.line?.length ?? 1000) / 1000);
     const w = this.map.getContainer().clientWidth;
     const flight = trip.route?.profile === 'flight';
-    const z = 17.4 - Math.log2(km) + Math.log2(Math.max(360, w) / 1400) * 0.8;
-    return clamp(z, flight ? 4.2 : 7.5, 15.6);
+    const z = 18.65 - Math.log2(km) + Math.log2(Math.max(360, w) / 1400) * 0.8;
+    return clamp(z, flight ? 5 : 8.5, 16.2);
+  }
+
+  /**
+   * Sichtprüfung: Liegt Gelände zwischen Kamera und Position, wird die Kamera steiler
+   * (weniger Neigung) und notfalls etwas höher gestellt. Nutzt die geladenen Geländekacheln.
+   */
+  private clearView(center: LngLat, bearing: number, pitch: number, zoom: number): { pitch: number; zoomDrop: number } {
+    const map = this.map;
+    const ground = map.queryTerrainElevation?.(center);
+    if (ground == null) return { pitch, zoomDrop: 0 };
+    const h = map.getContainer().clientHeight;
+    const fov = ((map.getVerticalFieldOfView?.() ?? 36.87) * Math.PI) / 180;
+    const latR = (center[1] * Math.PI) / 180;
+    const back = ((bearing + 180) * Math.PI) / 180;
+    const occluded = (p: number, z: number): boolean => {
+      const mpp = (40075016.686 * Math.cos(latR)) / (512 * 2 ** z);
+      const dist = (h / 2 / Math.tan(fov / 2)) * mpp; // Kamera–Mittelpunkt in m
+      const pr = (p * Math.PI) / 180;
+      const horiz = dist * Math.sin(pr);
+      const vert = dist * Math.cos(pr);
+      for (let i = 1; i <= 7; i++) {
+        const s = i / 8;
+        const dN = (Math.cos(back) * horiz * s) / 111320;
+        const dE = (Math.sin(back) * horiz * s) / (111320 * Math.max(0.2, Math.cos(latR)));
+        const e = map.queryTerrainElevation([center[0] + dE, center[1] + dN]);
+        // 4 % Reserve plus 25 m, damit die Position nicht hinter einer Kante klebt
+        if (e != null && e > ground + vert * s * 0.96 - 25) return true;
+      }
+      return false;
+    };
+    for (let p = pitch; p >= 38; p -= 5) {
+      if (!occluded(p, zoom)) return { pitch: p, zoomDrop: 0 };
+    }
+    for (const drop of [0.4, 0.8, 1.2]) {
+      if (!occluded(38, zoom - drop)) return { pitch: 38, zoomDrop: drop };
+    }
+    return { pitch: 38, zoomDrop: 1.2 };
+  }
+
+  /** Neigung/Zoom weich nachführen: steiler werden schnell, flacher werden langsam. */
+  private smoothView(target: { pitch: number; zoomDrop: number }, dt: number): { pitch: number; zoomDrop: number } {
+    if (this.filteredPitch == null || dt === 0) {
+      this.filteredPitch = target.pitch;
+      this.filteredZoomDrop = target.zoomDrop;
+    } else {
+      const kp = target.pitch < this.filteredPitch ? 5 : 0.9;
+      this.filteredPitch += (target.pitch - this.filteredPitch) * Math.min(1, dt * kp);
+      const kz = target.zoomDrop > this.filteredZoomDrop ? 5 : 0.8;
+      this.filteredZoomDrop += (target.zoomDrop - this.filteredZoomDrop) * Math.min(1, dt * kz);
+    }
+    return { pitch: this.filteredPitch, zoomDrop: this.filteredZoomDrop };
   }
 
   /** Blickrichtung aus der Routengeometrie, über ein Fenster gemittelt. */
@@ -262,9 +326,11 @@ export class Player {
       b = this.filteredBearing;
     }
     const flight = this.trip!.route?.profile === 'flight';
-    const pitch = flight ? 70 : this.mountain ? 63 : 74;
-    const zoom = this.followZoom() - (this.mountain ? 0.35 : 0);
-    return { center: line.pointAt(dist), zoom, pitch, bearing: b, pad: this.chasePad() };
+    const basePitch = flight ? 70 : this.mountain ? 66 : 72;
+    const baseZoom = this.followZoom() - (this.mountain ? 0.25 : 0);
+    const center = line.pointAt(dist);
+    const v = flight ? { pitch: basePitch, zoomDrop: 0 } : this.smoothView(this.clearView(center, b, basePitch, baseZoom), dt);
+    return { center, zoom: baseZoom - v.zoomDrop, pitch: v.pitch, bearing: b, pad: this.chasePad() };
   }
 
   private chasePad(): Pad {
@@ -299,7 +365,7 @@ export class Player {
     const p = this.trip!.places[0].coord;
     const h = this.map.getContainer().clientHeight;
     // nicht zu tief: in engen Tälern stünde die Kamera sonst vor einer Felswand
-    return { center: p, zoom: 12.4, pitch: 68, bearing: 0, pad: { top: Math.round(h * 0.22), bottom: 0, left: 0, right: 0 } };
+    return { center: p, zoom: 13.3, pitch: 66, bearing: 0, pad: { top: Math.round(h * 0.22), bottom: 0, left: 0, right: 0 } };
   }
 
   /** Startblick beim Orbit: zur Sonne bzw. zum Mond, damit sie ins Bild kommen. */
@@ -316,14 +382,19 @@ export class Player {
       const sweep = 220;
       const b0 = this.orbitStartBearing - 70;
       const orbitT = clamp((t - INTRO) / (OUTRO - INTRO), 0, 1);
-      const orbitCam = (u: number): Cam => ({ ...base, bearing: b0 + sweep * u, zoom: base.zoom - 0.4 * Math.sin(Math.PI * u) });
+      const orbitCam = (u: number, dtv = 0): Cam => {
+        const bearing = b0 + sweep * u;
+        const zoom = base.zoom - 0.4 * Math.sin(Math.PI * u);
+        const v = this.smoothView(this.clearView(base.center, bearing, base.pitch, zoom), dtv);
+        return { ...base, bearing, zoom: zoom - v.zoomDrop, pitch: v.pitch };
+      };
       let cam: Cam;
       let phase: Frame['phase'];
       if (t < INTRO) {
         cam = interpolateCam(startCam, orbitCam(0), t / INTRO);
         phase = 'intro';
       } else if (t <= OUTRO) {
-        cam = orbitCam(easeSine(orbitT));
+        cam = orbitCam(easeSine(orbitT), dt);
         phase = 'main';
       } else {
         const end = orbitCam(1);

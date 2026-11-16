@@ -1,0 +1,818 @@
+{
+"Luzern": {
+"results": [
+{
+"attrs": {
+"label": "<b>Luzern (LU)</b>",
+"detail": "luzern lu",
+"lat": 47.05473327636719,
+"lon": 8.300894737243652,
+"origin": "gg25",
+"objectclass": "",
+"rank": 2
+}
+},
+{
+"attrs": {
+"label": "<b>Luzern-Stadt</b>",
+"detail": "Luzern-Stadt",
+"lat": 47.05473327636719,
+"lon": 8.300894737243652,
+"origin": "district",
+"objectclass": "",
+"rank": 3
+}
+},
+{
+"attrs": {
+"label": "<b>Luzern-Land</b>",
+"detail": "Luzern-Land",
+"lat": 47.051212310791016,
+"lon": 8.406326293945312,
+"origin": "district",
+"objectclass": "",
+"rank": 3
+}
+},
+{
+"attrs": {
+"label": "<b>Luzern</b>",
+"detail": "luzern lu",
+"lat": 47.0307502746582,
+"lon": 8.1918363571167,
+"origin": "kantone",
+"objectclass": "",
+"rank": 4
+}
+},
+{
+"attrs": {
+"label": "<b>Luzern</b> (LU) - Ebikon,Malters,Kriens,Luzern,Horw,Adligenswil,Meggen,Emmen",
+"detail": "luzern ebikon,malters,kriens,luzern,horw,adligenswil,meggen,emmen",
+"lat": 47.051124572753906,
+"lon": 8.305032730102539,
+"origin": "gazetteer",
+"objectclass": "TLM_SIEDLUNGSNAME",
+"rank": 5
+}
+},
+{
+"attrs": {
+"label": "<b>Luzern\n</b> (LU) - Ebikon,Malters,Kriens,Luzern,Horw,Adligenswil,Meggen,Emmen",
+"detail": "luzern\n ebikon,malters,kriens,luzern,horw,adligenswil,meggen,emmen",
+"lat": 47.051124572753906,
+"lon": 8.305032730102539,
+"origin": "gazetteer",
+"objectclass": "TLM_SIEDLUNGSNAME",
+"rank": 5
+}
+},
+{
+"attrs": {
+"label": "<i>Ausfahrt</i> <b>Luzern-Zentrum</b> (LU) - Luzern",
+"detail": "luzern-zentrum luzern",
+"lat": 47.055484771728516,
+"lon": 8.295222282409668,
+"origin": "gazetteer",
+"objectclass": "TLM_AUS_EINFAHRT",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Standplatzareal</i> <b>Luzern-Horw</b> (LU) - Horw",
+"detail": "luzern-horw horw",
+"lat": 47.011043548583984,
+"lon": 8.310386657714844,
+"origin": "gazetteer",
+"objectclass": "TLM_FREIZEITAREAL",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Ausfahrt</i> <b>Luzern-Kriens</b> (LU) - Kriens",
+"detail": "luzern-kriens kriens",
+"lat": 47.03717041015625,
+"lon": 8.295207977294922,
+"origin": "gazetteer",
+"objectclass": "TLM_AUS_EINFAHRT",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Ausfahrt</i> <b>Luzern-Horw</b> (LU) - Kriens",
+"detail": "luzern-horw kriens",
+"lat": 47.016944885253906,
+"lon": 8.298470497131348,
+"origin": "gazetteer",
+"objectclass": "TLM_AUS_EINFAHRT",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Ausfahrt</i> <b>Luzern-Horw</b> (LU) - Kriens",
+"detail": "luzern-horw kriens",
+"lat": 47.01959991455078,
+"lon": 8.295835494995117,
+"origin": "gazetteer",
+"objectclass": "TLM_AUS_EINFAHRT",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Ausfahrt</i> <b>Luzern-Kriens</b> (LU) - Kriens",
+"detail": "luzern-kriens kriens",
+"lat": 47.03522872924805,
+"lon": 8.295502662658691,
+"origin": "gazetteer",
+"objectclass": "TLM_AUS_EINFAHRT",
+"rank": 6
+}
+}
+]
+},
+"Paris": {
+"results": [
+{
+"attrs": {
+"label": "<i>Fliessgewaesser</i> <b>Ruisseau de Champ-Paris</b> (FR,VD) - Châtonnaye,Villarzel",
+"detail": "ruisseau de champ-paris chatonnaye,villarzel",
+"lat": 46.75835037231445,
+"lon": 6.919992923736572,
+"origin": "gazetteer",
+"objectclass": "TLM_FLIESSGEWAESSER",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Flurname swisstopo</i> <b>Parisli</b> (SO) - Bettlach",
+"detail": "parisli bettlach",
+"lat": 47.211551666259766,
+"lon": 7.430298328399658,
+"origin": "gazetteer",
+"objectclass": "TLM_FLURNAME",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Flurname swisstopo</i> <b>Les Paris</b> (GE) - Veyrier",
+"detail": "les paris veyrier",
+"lat": 46.162254333496094,
+"lon": 6.17816162109375,
+"origin": "gazetteer",
+"objectclass": "TLM_FLURNAME",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<b>Prise Paris</b> (NE) - La Grande Béroche",
+"detail": "prise paris la grande beroche",
+"lat": 46.929100036621094,
+"lon": 6.8081254959106445,
+"origin": "gazetteer",
+"objectclass": "TLM_FLURNAME",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Gipfel</i> <b>Parisbüchel</b> (SG) - Mels",
+"detail": "parisbuechel mels",
+"lat": 46.99839782714844,
+"lon": 9.282801628112793,
+"origin": "gazetteer",
+"objectclass": "TLM_NAME_PKT",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Lokalname swisstopo</i> <b>Rochers de Paris</b> (VS) - Anniviers",
+"detail": "rochers de paris anniviers",
+"lat": 46.13239288330078,
+"lon": 7.582892894744873,
+"origin": "gazetteer",
+"objectclass": "TLM_FLURNAME",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Flurname swisstopo</i> <b>Plantaz Paris</b> (VD) - Concise",
+"detail": "plantaz paris concise",
+"lat": 46.85890579223633,
+"lon": 6.719224452972412,
+"origin": "gazetteer",
+"objectclass": "TLM_FLURNAME",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<b>Les Parises</b> (NE) - Cornaux",
+"detail": "les parises cornaux",
+"lat": 47.03794479370117,
+"lon": 7.014917850494385,
+"origin": "gazetteer",
+"objectclass": "TLM_FLURNAME",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Flurname swisstopo</i> <b>Planche au Parisien</b> (NE) - Cressier (NE)",
+"detail": "planche au parisien cressier _ne_",
+"lat": 47.04768753051758,
+"lon": 7.025110244750977,
+"origin": "gazetteer",
+"objectclass": "TLM_FLURNAME",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Flurname swisstopo</i> <b>La Parisaz</b> (VD) - Commugny",
+"detail": "la parisaz commugny",
+"lat": 46.31449508666992,
+"lon": 6.179070949554443,
+"origin": "gazetteer",
+"objectclass": "TLM_FLURNAME",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Quartierteil</i> <b>Pré Pariset</b> (VD) - Pully",
+"detail": "pre pariset pully",
+"lat": 46.51967239379883,
+"lon": 6.668192386627197,
+"origin": "gazetteer",
+"objectclass": "TLM_SIEDLUNGSNAME",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Flurname swisstopo</i> <b>Gumparis</b> (GR) - Chur",
+"detail": "gumparis chur",
+"lat": 46.843868255615234,
+"lon": 9.568650245666504,
+"origin": "gazetteer",
+"objectclass": "TLM_FLURNAME",
+"rank": 6
+}
+}
+]
+},
+"Matterhorn": {
+"results": [
+{
+"attrs": {
+"label": "<i>Gondelbahn</i> <b>Matterhorn-Express II Furi-Schwarzsee</b> (VS) - Zermatt",
+"detail": "matterhorn-express ii furi-schwarzsee zermatt",
+"lat": 45.996910095214844,
+"lon": 7.7205281257629395,
+"origin": "gazetteer",
+"objectclass": "TLM_UEBRIGE_BAHN",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Gondelbahn</i> <b>Matterhorn-Express III Schwarzsee-Furgg-Trockener Steg</b> (VS) - Zermatt",
+"detail": "matterhorn-express iii schwarzsee-furgg-trockener steg zermatt",
+"lat": 45.98167037963867,
+"lon": 7.714638710021973,
+"origin": "gazetteer",
+"objectclass": "TLM_UEBRIGE_BAHN",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Gondelbahn</i> <b>Matterhorn-Express I Zermatt-Furi</b> (VS) - Zermatt",
+"detail": "matterhorn-express i zermatt-furi zermatt",
+"lat": 46.008216857910156,
+"lon": 7.737440586090088,
+"origin": "gazetteer",
+"objectclass": "TLM_UEBRIGE_BAHN",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Alpiner Gipfel</i> <b>Matterhorn Mont Cervin|Monte Cervino</b> () - ",
+"detail": "matterhorn mont cervin|monte cervino",
+"lat": 45.97641372680664,
+"lon": 7.658612251281738,
+"origin": "gazetteer",
+"objectclass": "TLM_NAME_PKT",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Gebaeude</i> <b>Matterhorn Terminal</b> (VS) - Täsch",
+"detail": "matterhorn terminal taesch",
+"lat": 46.068634033203125,
+"lon": 7.775328636169434,
+"origin": "gazetteer",
+"objectclass": "TLM_GEBAEUDE",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Golfplatzareal</i> <b>Golfplatz Matterhorn</b> (VS) - Randa,Täsch",
+"detail": "golfplatz matterhorn randa,taesch",
+"lat": 46.08469009399414,
+"lon": 7.779351234436035,
+"origin": "gazetteer",
+"objectclass": "TLM_FREIZEITAREAL",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Gondelbahn</i> <b>3S Zermatt Trockener Steg-Klein Matterhorn</b> (VS) - Zermatt",
+"detail": "3s zermatt trockener steg-klein matterhorn zermatt",
+"lat": 45.95498275756836,
+"lon": 7.725279331207275,
+"origin": "gazetteer",
+"objectclass": "TLM_UEBRIGE_BAHN",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Golfplatzareal</i> <b>Golfplatz Matterhorn</b> (VS) - Randa",
+"detail": "golfplatz matterhorn randa",
+"lat": 46.08308792114258,
+"lon": 7.776552677154541,
+"origin": "gazetteer",
+"objectclass": "TLM_FREIZEITAREAL",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Übrige Bahnen</i> <b>Klein Matterhorn</b> (VS) - Zermatt",
+"detail": "klein matterhorn zermatt",
+"lat": 45.93941879272461,
+"lon": 7.730207443237305,
+"origin": "gazetteer",
+"objectclass": "TLM_HALTESTELLE",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Gletscher</i> <b>Matterhorngletscher</b> (VS) - Zermatt",
+"detail": "matterhorngletscher zermatt",
+"lat": 45.987030029296875,
+"lon": 7.6629557609558105,
+"origin": "gazetteer",
+"objectclass": "TLM_GELAENDENAME",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Hauptgipfel</i> <b>Klein Matterhorn</b> (VS) - Zermatt",
+"detail": "klein matterhorn zermatt",
+"lat": 45.938419342041016,
+"lon": 7.729930400848389,
+"origin": "gazetteer",
+"objectclass": "TLM_NAME_PKT",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Luftseilbahn</i> <b>Trockener Steg-Klein Matterhorn</b> (VS) - Zermatt",
+"detail": "trockener steg-klein matterhorn zermatt",
+"lat": 45.95504379272461,
+"lon": 7.7259392738342285,
+"origin": "gazetteer",
+"objectclass": "TLM_UEBRIGE_BAHN",
+"rank": 6
+}
+}
+]
+},
+"Bahnhofstrasse 1 Zürich": {
+"results": [
+{
+"attrs": {
+"label": "Bahnhofstrasse 1 <b>8001 Zürich</b>",
+"detail": "bahnhofstrasse 1 8001 zuerich 261 zuerich ch zh",
+"lat": 47.367347717285156,
+"lon": 8.539949417114258,
+"origin": "address",
+"objectclass": "",
+"rank": 7
+}
+},
+{
+"attrs": {
+"label": "Bahnhofstrasse 10 <b>8001 Zürich</b>",
+"detail": "bahnhofstrasse 10 8001 zuerich 261 zuerich ch zh",
+"lat": 47.36818313598633,
+"lon": 8.540020942687988,
+"origin": "address",
+"objectclass": "",
+"rank": 7
+}
+},
+{
+"attrs": {
+"label": "Bahnhofstrasse 11 <b>8001 Zürich</b>",
+"detail": "bahnhofstrasse 11 8001 zuerich 261 zuerich ch zh",
+"lat": 47.36870574951172,
+"lon": 8.539264678955078,
+"origin": "address",
+"objectclass": "",
+"rank": 7
+}
+},
+{
+"attrs": {
+"label": "Bahnhofstrasse 12 <b>8001 Zürich</b>",
+"detail": "bahnhofstrasse 12 8001 zuerich 261 zuerich ch zh",
+"lat": 47.368221282958984,
+"lon": 8.540009498596191,
+"origin": "address",
+"objectclass": "",
+"rank": 7
+}
+},
+{
+"attrs": {
+"label": "Bahnhofstrasse 13 <b>8001 Zürich</b>",
+"detail": "bahnhofstrasse 13 8001 zuerich 261 zuerich ch zh",
+"lat": 47.3688850402832,
+"lon": 8.539422988891602,
+"origin": "address",
+"objectclass": "",
+"rank": 7
+}
+},
+{
+"attrs": {
+"label": "Bahnhofstrasse 14 <b>8001 Zürich</b>",
+"detail": "bahnhofstrasse 14 8001 zuerich 261 zuerich ch zh",
+"lat": 47.36845779418945,
+"lon": 8.540050506591797,
+"origin": "address",
+"objectclass": "",
+"rank": 7
+}
+},
+{
+"attrs": {
+"label": "Bahnhofstrasse 16 <b>8001 Zürich</b>",
+"detail": "bahnhofstrasse 16 8001 zuerich 261 zuerich ch zh",
+"lat": 47.36861801147461,
+"lon": 8.539859771728516,
+"origin": "address",
+"objectclass": "",
+"rank": 7
+}
+},
+{
+"attrs": {
+"label": "Bahnhofstrasse 17 <b>8001 Zürich</b>",
+"detail": "bahnhofstrasse 17 8001 zuerich 261 zuerich ch zh",
+"lat": 47.369110107421875,
+"lon": 8.539041519165039,
+"origin": "address",
+"objectclass": "",
+"rank": 7
+}
+},
+{
+"attrs": {
+"label": "Bahnhofstrasse 18 <b>8001 Zürich</b>",
+"detail": "bahnhofstrasse 18 8001 zuerich 261 zuerich ch zh",
+"lat": 47.368839263916016,
+"lon": 8.540140151977539,
+"origin": "address",
+"objectclass": "",
+"rank": 7
+}
+},
+{
+"attrs": {
+"label": "Bahnhofstrasse 100 <b>8001 Zürich</b>",
+"detail": "bahnhofstrasse 100 8001 zuerich 261 zuerich ch zh",
+"lat": 47.376224517822266,
+"lon": 8.539688110351562,
+"origin": "address",
+"objectclass": "",
+"rank": 7
+}
+},
+{
+"attrs": {
+"label": "Bahnhofstrasse 102 <b>8001 Zürich</b>",
+"detail": "bahnhofstrasse 102 8001 zuerich 261 zuerich ch zh",
+"lat": 47.376258850097656,
+"lon": 8.539704322814941,
+"origin": "address",
+"objectclass": "",
+"rank": 7
+}
+},
+{
+"attrs": {
+"label": "Bahnhofstrasse 104 <b>8001 Zürich</b>",
+"detail": "bahnhofstrasse 104 8001 zuerich 261 zuerich ch zh",
+"lat": 47.3764762878418,
+"lon": 8.539815902709961,
+"origin": "address",
+"objectclass": "",
+"rank": 7
+}
+}
+]
+},
+"Rigi": {
+"results": [
+{
+"attrs": {
+"label": "<i>Ort</i> <b>Rigi Unterstetten</b> (SZ) - Arth",
+"detail": "rigi unterstetten arth",
+"lat": 47.03107833862305,
+"lon": 8.492462158203125,
+"origin": "gazetteer",
+"objectclass": "TLM_SIEDLUNGSNAME",
+"rank": 5
+}
+},
+{
+"attrs": {
+"label": "<i>Ort</i> <b>Rigi Kaltbad</b> (LU) - Weggis",
+"detail": "rigi kaltbad weggis",
+"lat": 47.04526901245117,
+"lon": 8.466939926147461,
+"origin": "gazetteer",
+"objectclass": "TLM_SIEDLUNGSNAME",
+"rank": 5
+}
+},
+{
+"attrs": {
+"label": "<i>Ort</i> <b>Rigi Staffel</b> (SZ) - Arth",
+"detail": "rigi staffel arth",
+"lat": 47.053627014160156,
+"lon": 8.476154327392578,
+"origin": "gazetteer",
+"objectclass": "TLM_SIEDLUNGSNAME",
+"rank": 5
+}
+},
+{
+"attrs": {
+"label": "<i>Ort</i> <b>Rigi Burggeist</b> (SZ) - Gersau",
+"detail": "rigi burggeist gersau",
+"lat": 47.02505874633789,
+"lon": 8.523940086364746,
+"origin": "gazetteer",
+"objectclass": "TLM_SIEDLUNGSNAME",
+"rank": 5
+}
+},
+{
+"attrs": {
+"label": "<i>Ort</i> <b>Rigi Scheidegg</b> (SZ) - Arth",
+"detail": "rigi scheidegg arth",
+"lat": 47.027339935302734,
+"lon": 8.523390769958496,
+"origin": "gazetteer",
+"objectclass": "TLM_SIEDLUNGSNAME",
+"rank": 5
+}
+},
+{
+"attrs": {
+"label": "<b>Rigi Kulm</b> (SZ) - Arth",
+"detail": "rigi kulm arth",
+"lat": 47.05552291870117,
+"lon": 8.484990119934082,
+"origin": "gazetteer",
+"objectclass": "TLM_SIEDLUNGSNAME",
+"rank": 5
+}
+},
+{
+"attrs": {
+"label": "<i>Ort</i> <b>Rigi Klösterli</b> (SZ) - Arth",
+"detail": "rigi kloesterli arth",
+"lat": 47.04386520385742,
+"lon": 8.485147476196289,
+"origin": "gazetteer",
+"objectclass": "TLM_SIEDLUNGSNAME",
+"rank": 5
+}
+},
+{
+"attrs": {
+"label": "<i>Gipfel</i> <b>Rigi Dossen</b> (SZ) - Arth",
+"detail": "rigi dossen arth",
+"lat": 47.02707290649414,
+"lon": 8.49870777130127,
+"origin": "gazetteer",
+"objectclass": "TLM_NAME_PKT",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Skilift</i> <b>Rigi Rotstock</b> (SZ) - Arth",
+"detail": "rigi rotstock arth",
+"lat": 47.04888153076172,
+"lon": 8.470507621765137,
+"origin": "gazetteer",
+"objectclass": "TLM_UEBRIGE_BAHN",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Flurname swisstopo</i> <b>Rigi</b> (LU) - Grosswangen",
+"detail": "rigi grosswangen",
+"lat": 47.133872985839844,
+"lon": 8.072970390319824,
+"origin": "gazetteer",
+"objectclass": "TLM_FLURNAME",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Gebaeude</i> <b>Rigi Kulm Hotel</b> (SZ) - Arth",
+"detail": "rigi kulm hotel arth",
+"lat": 47.05585479736328,
+"lon": 8.484042167663574,
+"origin": "gazetteer",
+"objectclass": "TLM_GEBAEUDE",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Flurname swisstopo</i> <b>Rigi</b> (VS) - Ried-Brig",
+"detail": "rigi ried-brig",
+"lat": 46.298763275146484,
+"lon": 8.072174072265625,
+"origin": "gazetteer",
+"objectclass": "TLM_FLURNAME",
+"rank": 6
+}
+}
+]
+},
+"Zürich": {
+"results": [
+{
+"attrs": {
+"label": "<b>Zürich (ZH)</b>",
+"detail": "zuerich zh",
+"lat": 47.37721252441406,
+"lon": 8.527311325073242,
+"origin": "gg25",
+"objectclass": "",
+"rank": 2
+}
+},
+{
+"attrs": {
+"label": "<b>Zürich</b>",
+"detail": "zuerich zh",
+"lat": 47.42709732055664,
+"lon": 8.644238471984863,
+"origin": "kantone",
+"objectclass": "",
+"rank": 4
+}
+},
+{
+"attrs": {
+"label": "<b>Zürich</b> (ZH) - Dübendorf,Zollikon,Kilchberg (ZH),Wallisellen,Opfikon,Rümlang,Oberengstringen,Adliswil,Zürich,Schlieren",
+"detail": "zuerich duebendorf,zollikon,kilchberg _zh_,wallisellen,opfikon,ruemlang,oberengstringen,adliswil,zuerich,schlieren",
+"lat": 47.383949279785156,
+"lon": 8.530145645141602,
+"origin": "gazetteer",
+"objectclass": "TLM_SIEDLUNGSNAME",
+"rank": 5
+}
+},
+{
+"attrs": {
+"label": "<b>Zürich\n</b> (ZH) - Dübendorf,Zollikon,Kilchberg (ZH),Wallisellen,Opfikon,Rümlang,Oberengstringen,Adliswil,Zürich,Schlieren",
+"detail": "zuerich\n duebendorf,zollikon,kilchberg _zh_,wallisellen,opfikon,ruemlang,oberengstringen,adliswil,zuerich,schlieren",
+"lat": 47.383949279785156,
+"lon": 8.530145645141602,
+"origin": "gazetteer",
+"objectclass": "TLM_SIEDLUNGSNAME",
+"rank": 5
+}
+},
+{
+"attrs": {
+"label": "<i>Verzweigung</i> <b>Zürich-West</b> (ZH) - Birmensdorf (ZH)",
+"detail": "zuerich-west birmensdorf _zh_",
+"lat": 47.34192657470703,
+"lon": 8.455621719360352,
+"origin": "gazetteer",
+"objectclass": "TLM_AUS_EINFAHRT",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Gebaeude</i> <b>Zürich-Albisgütli 25m</b> (ZH) - Zürich",
+"detail": "zuerich-albisguetli 25m zuerich",
+"lat": 47.35154342651367,
+"lon": 8.5075044631958,
+"origin": "gazetteer",
+"objectclass": "TLM_GEBAEUDE",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Gebaeude</i> <b>Zürich-Schwamendingen Probstei 25m</b> (ZH) - Zürich",
+"detail": "zuerich-schwamendingen probstei 25m zuerich",
+"lat": 47.39698791503906,
+"lon": 8.586896896362305,
+"origin": "gazetteer",
+"objectclass": "TLM_GEBAEUDE",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Ausfahrt</i> <b>Zürich-Affoltern</b> (ZH) - Zürich",
+"detail": "zuerich-affoltern zuerich",
+"lat": 47.4265022277832,
+"lon": 8.494590759277344,
+"origin": "gazetteer",
+"objectclass": "TLM_AUS_EINFAHRT",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Ausfahrt</i> <b>Zürich-Seebach</b> (ZH) - Zürich",
+"detail": "zuerich-seebach zuerich",
+"lat": 47.429508209228516,
+"lon": 8.552030563354492,
+"origin": "gazetteer",
+"objectclass": "TLM_AUS_EINFAHRT",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Verzweigung</i> <b>Zürich-Ost</b> (ZH) - Wallisellen",
+"detail": "zuerich-ost wallisellen",
+"lat": 47.41361618041992,
+"lon": 8.574413299560547,
+"origin": "gazetteer",
+"objectclass": "TLM_AUS_EINFAHRT",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Verzweigung</i> <b>Zürich-Nord</b> (ZH) - Opfikon",
+"detail": "zuerich-nord opfikon",
+"lat": 47.42451095581055,
+"lon": 8.568349838256836,
+"origin": "gazetteer",
+"objectclass": "TLM_AUS_EINFAHRT",
+"rank": 6
+}
+},
+{
+"attrs": {
+"label": "<i>Verzweigung</i> <b>Zürich-West</b> (ZH) - Birmensdorf (ZH)",
+"detail": "zuerich-west birmensdorf _zh_",
+"lat": 47.33748245239258,
+"lon": 8.459929466247559,
+"origin": "gazetteer",
+"objectclass": "TLM_AUS_EINFAHRT",
+"rank": 6
+}
+}
+]
+}
+}

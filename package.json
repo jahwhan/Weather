@@ -12,8 +12,6 @@
     "test": "node --test test/*.test.ts"
   },
   "dependencies": {
-    "@fontsource-variable/archivo": "^5.2.8",
-    "@fontsource/jetbrains-mono": "^5.2.8",
     "maplibre-gl": "^6.16.0"
   },
   "devDependencies": {

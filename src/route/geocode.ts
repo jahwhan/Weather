@@ -1,6 +1,13 @@
-// Orte suchen (Photon/komoot, Rückfall Open-Meteo-Geocoding) und Koordinaten benennen.
+// Orte suchen und Koordinaten benennen.
+// Zuerst die Bundes-Geodienste (geo.admin.ch, © swisstopo) für die Schweiz, für das Ausland
+// Photon (komoot) mit Rückfall auf das Open-Meteo-Geocoding.
 
 import type { LngLat } from '../geo';
+import { withTimeout } from '../swiss/http.ts';
+import { isInSwitzerland } from '../swiss/region.ts';
+import { reverseGeoAdmin, searchGeoAdmin, type RankedPlace } from '../swiss/search.ts';
+
+export { withTimeout };
 
 export interface Place {
   name: string;
@@ -27,13 +34,6 @@ interface PhotonFeature {
     osm_value?: string;
     type?: string;
   };
-}
-
-/** Abbruch nach `ms` oder wenn `signal` abbricht. */
-export function withTimeout(signal: AbortSignal | undefined, ms: number): AbortSignal {
-  const t = AbortSignal.timeout(ms);
-  if (!signal) return t;
-  return typeof AbortSignal.any === 'function' ? AbortSignal.any([signal, t]) : signal;
 }
 
 const COORD_RE = /^\s*(-?\d{1,2}(?:[.,]\d+)?)\s*[,;\s]\s*(-?\d{1,3}(?:[.,]\d+)?)\s*$/;
@@ -63,13 +63,16 @@ function photonPlace(f: PhotonFeature): Place {
   };
 }
 
-// Suchergebnisse im Browser merken: schnellere Neuladen, weniger Last für die Dienste
-const CACHE_KEY = 'wetterflug.geocode.v1';
+// Suchergebnisse im Browser merken: schnellere Neuladen, weniger Last für die Dienste.
+// v2: Schweizer Treffer kommen von geo.admin.ch, alte Photon-Ergebnisse (v1) werden ignoriert.
+// Der Speicher lässt sich vorbelegen: localStorage[CACHE_KEY] = {"zürich|6": [Place, …]}
+export const CACHE_KEY = 'wetterflug.geocode.v2';
 let memo: Record<string, Place[]> | null = null;
 function cache(): Record<string, Place[]> {
   if (memo) return memo;
   try {
     memo = JSON.parse(localStorage.getItem(CACHE_KEY) ?? '{}') as Record<string, Place[]>;
+    localStorage.removeItem('wetterflug.geocode.v1');
   } catch {
     memo = {};
   }
@@ -102,7 +105,57 @@ export async function searchPlaces(query: string, bias?: LngLat, signal?: AbortS
   return found;
 }
 
+const samePlace = (a: Place, b: Place) =>
+  a.name.toLowerCase() === b.name.toLowerCase() &&
+  Math.abs(a.coord[0] - b.coord[0]) < 0.05 &&
+  Math.abs(a.coord[1] - b.coord[1]) < 0.03;
+
+const stripRank = ({ name, detail, coord, kind }: RankedPlace): Place => ({ name, detail, coord, kind });
+
+/**
+ * Schweizer Treffer (geo.admin) und ausländische (Photon/Open-Meteo) zusammenführen.
+ * Passt geo.admin eindeutig (Gemeinde, Ort, Gipfel, Adresse …), gewinnt die Schweiz; sonst
+ * (z. B. "Paris" -> nur Flurnamen "Les Paris") kommen die ausländischen Treffer zuerst.
+ */
+export function mergeResults(ch: RankedPlace[], foreign: Place[], limit: number): Place[] {
+  const strong = ch.filter((p) => p.strong).map(stripRank);
+  const weak = ch.filter((p) => !p.strong).map(stripRank);
+  const ordered = strong.length ? [...strong, ...foreign, ...weak] : [...foreign, ...weak];
+  const out: Place[] = [];
+  for (const p of ordered) {
+    if (!out.some((q) => samePlace(p, q))) out.push(p);
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
 async function searchUncached(q: string, bias: LngLat | undefined, signal: AbortSignal | undefined, limit: number): Promise<Place[]> {
+  // beide Quellen parallel; ist die Schweiz eindeutig, wird nicht auf das Ausland gewartet
+  const foreignCtl = new AbortController();
+  const onAbort = () => foreignCtl.abort();
+  signal?.addEventListener('abort', onAbort, { once: true });
+  const foreignP = searchForeign(q, bias, foreignCtl.signal, limit).catch(() => [] as Place[]);
+  let ch: RankedPlace[] = [];
+  try {
+    ch = await searchGeoAdmin(q, signal, limit);
+  } catch (err) {
+    if (signal?.aborted) throw err;
+    console.warn('geo.admin-Suche nicht verfügbar:', err);
+  }
+  try {
+    if (ch.some((p) => p.strong)) {
+      foreignCtl.abort();
+      return mergeResults(ch, [], limit);
+    }
+    const foreign = await foreignP;
+    if (signal?.aborted) throw signal.reason ?? new DOMException('Abgebrochen', 'AbortError');
+    return mergeResults(ch, foreign, limit);
+  } finally {
+    signal?.removeEventListener('abort', onAbort);
+  }
+}
+
+async function searchForeign(q: string, bias: LngLat | undefined, signal: AbortSignal | undefined, limit: number): Promise<Place[]> {
   try {
     const params = new URLSearchParams({ q, limit: String(limit), lang: 'de' });
     if (bias) {
@@ -161,6 +214,15 @@ export async function reverseGeocode(coord: LngLat, signal?: AbortSignal): Promi
     coord,
     kind: 'coordinate',
   };
+  if (isInSwitzerland(coord)) {
+    try {
+      const ch = await reverseGeoAdmin(coord, signal);
+      if (ch) return ch;
+    } catch (err) {
+      if (signal?.aborted) return fallback;
+      console.warn('geo.admin-Rückwärtssuche nicht verfügbar:', err);
+    }
+  }
   try {
     const params = new URLSearchParams({ lat: coord[1].toFixed(5), lon: coord[0].toFixed(5), lang: 'de', limit: '1' });
     const res = await fetch(`https://photon.komoot.io/reverse?${params}`, { signal: withTimeout(signal, 4000) });

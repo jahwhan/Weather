@@ -70,6 +70,10 @@ export class MapScene {
     this.paint('satellite', 'raster-brightness-max', r3(bright));
     this.paint('satellite', 'raster-saturation', r3(sat));
     this.paint('satellite', 'raster-contrast', r3(contrast));
+    // SWISSIMAGE (nur in der Schweiz) gleich behandeln wie das Satellitenbild
+    this.paint('swissimage', 'raster-brightness-max', r3(bright));
+    this.paint('swissimage', 'raster-saturation', r3(sat));
+    this.paint('swissimage', 'raster-contrast', r3(contrast));
     this.paint('tint', 'background-color', css(env.tint));
     this.paint('tint', 'background-opacity', r3(env.tintAlpha * k));
     this.paint('space', 'background-color', css(mix(hex('#05070d'), env.skyZenith, 0.25 * k)));

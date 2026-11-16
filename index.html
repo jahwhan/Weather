@@ -1,115 +1,138 @@
 <!doctype html>
-<html lang="de">
+<html lang="de-CH">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#070b14" />
-    <meta name="description" content="Interaktive 3D-Wetterkarte: Ort oder Route eingeben, abspielen und das Live-Wetter mit Licht, Sonnenstand, Nebel und Niederschlag entlang der Strecke sehen." />
+    <meta name="theme-color" content="#dfe8f3" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0c1018" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="Wetterflug: Wetter für die Schweiz auf einer 3D-Karte. Ort oder Route eingeben, abspielen und Licht, Wolken, Nebel und Niederschlag entlang der Strecke erleben." />
     <title>Wetterflug</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23070b14'/%3E%3Cpath d='M5 23c5-1 6-10 11-11s6 6 11-3' fill='none' stroke='%23ff2e93' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='24' cy='9' r='3' fill='%23ffd36b'/%3E%3C/svg%3E" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%232b6fe0'/%3E%3Cpath d='M5 23c5-1 6-10 11-11s6 6 11-3' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='24' cy='9' r='3.2' fill='%23ffd04a'/%3E%3C/svg%3E" />
+
+    <!-- früh verbinden: Kartenkacheln, Gelände, Wetter, Suche -->
+    <link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin />
+    <link rel="preconnect" href="https://api.open-meteo.com" crossorigin />
+    <link rel="preconnect" href="https://s3.amazonaws.com" crossorigin />
+    <link rel="preconnect" href="https://wmts.geo.admin.ch" crossorigin />
+    <link rel="preconnect" href="https://server.arcgisonline.com" crossorigin />
+    <link rel="preconnect" href="https://api3.geo.admin.ch" crossorigin />
+    <link rel="dns-prefetch" href="https://tiles.openfreemap.org" />
+    <link rel="dns-prefetch" href="https://api.open-meteo.com" />
+    <link rel="dns-prefetch" href="https://s3.amazonaws.com" />
+    <link rel="dns-prefetch" href="https://wmts.geo.admin.ch" />
+    <link rel="dns-prefetch" href="https://server.arcgisonline.com" />
+    <link rel="dns-prefetch" href="https://api3.geo.admin.ch" />
+    <link rel="dns-prefetch" href="https://data.geo.admin.ch" />
+    <link rel="dns-prefetch" href="https://routing.openstreetmap.de" />
+    <link rel="dns-prefetch" href="https://photon.komoot.io" />
   </head>
   <body>
     <div id="map" aria-label="3D-Karte"></div>
 
-    <main class="hud">
-      <section class="panel cmd" id="cmd" aria-label="Ort oder Route">
-        <header class="brand">
-          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-            <path d="M3 24c5-1 7-11 12-12s7 6 13-4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
-            <circle cx="25" cy="8" r="3.2" fill="var(--sun)" />
-          </svg>
-          <h1>Wetterflug</h1>
-          <span class="live" id="liveBadge" title="Wetterdaten werden live geladen">Live</span>
-          <button type="button" class="opts-toggle" id="optsBtn" aria-expanded="false" aria-controls="cmdOpts">Optionen</button>
-        </header>
+    <div class="hud" id="hud">
+      <!-- Suche -->
+      <form class="search glass" id="routeForm" role="search" autocomplete="off">
+        <svg class="ui-icon search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.4 15.4 20 20" /></svg>
+        <input
+          id="routeInput"
+          name="route"
+          type="search"
+          enterkeyhint="go"
+          spellcheck="false"
+          autocapitalize="words"
+          placeholder="Ort oder Route suchen"
+          aria-label="Ort oder Route, z. B. Zürich nach Luzern"
+          aria-autocomplete="list"
+          aria-controls="suggest"
+          aria-expanded="false"
+        />
+        <button type="button" class="search-clear" id="clearBtn" aria-label="Eingabe leeren">
+          <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 7.5l9 9M16.5 7.5l-9 9" /></svg>
+        </button>
+        <button type="submit" class="search-go" id="goBtn" aria-label="Laden und abspielen">
+          <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6.5l5.5 5.5-5.5 5.5" /></svg>
+        </button>
+        <ul class="suggest glass" id="suggest" role="listbox" aria-label="Vorschläge" hidden></ul>
+      </form>
 
-        <form class="route-form" id="routeForm" autocomplete="off">
-          <div class="field">
-            <input
-              id="routeInput"
-              name="route"
-              type="text"
-              inputmode="search"
-              spellcheck="false"
-              placeholder="Ort oder Route, z. B. Basel bis Luzern"
-              aria-label="Ort oder Route"
-              aria-autocomplete="list"
-              aria-controls="suggest"
-            />
-            <button type="button" class="icon-btn clear" id="clearBtn" aria-label="Eingabe leeren">
-              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
-            </button>
-          </div>
-          <button type="submit" class="play-btn" id="playBtn">
-            <svg class="i-play" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 4l10 6-10 6z" fill="currentColor" /></svg>
-            <svg class="i-pause" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 4h3.5v12H5zM11.5 4H15v12h-3.5z" fill="currentColor" /></svg>
-            <span id="playLabel">Abspielen</span>
+      <div class="notices" id="notices">
+        <div class="hint glass" id="hint" role="note" hidden>
+          <p>Ort oder Route eingeben – z.&nbsp;B. <button type="button" class="link" data-try="Zürich nach Luzern">Zürich nach Luzern</button> – und abspielen.</p>
+          <button type="button" class="hint-close" id="hintClose" aria-label="Hinweis schliessen">
+            <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 7.5l9 9M16.5 7.5l-9 9" /></svg>
           </button>
-          <ul class="suggest" id="suggest" role="listbox" hidden></ul>
-        </form>
+        </div>
 
-        <div class="opts-wrap" id="cmdOpts">
-        <div class="opts">
-          <div class="seg" id="profileSeg" role="radiogroup" aria-label="Fortbewegung">
-            <button type="button" role="radio" data-v="bike" aria-checked="true">Velo</button>
-            <button type="button" role="radio" data-v="foot" aria-checked="false">Zu Fuss</button>
-            <button type="button" role="radio" data-v="car" aria-checked="false">Auto</button>
-            <button type="button" role="radio" data-v="flight" aria-checked="false">Flug</button>
-          </div>
+        <div class="toast glass" id="status" role="status" aria-live="polite" hidden></div>
+      </div>
+
+      <!-- Werkzeugleiste -->
+      <nav class="toolbar glass" id="toolbar" aria-label="Werkzeuge">
+        <button type="button" class="tool" id="modeBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="popMode" title="Reisemodus"></button>
+        <button type="button" class="tool" id="timeBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="popTime" title="Zeit"></button>
+        <button type="button" class="tool" id="chatBtn" aria-label="Chat öffnen" title="Chat"></button>
+        <button type="button" class="tool" id="settingsBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="popSettings" title="Einstellungen"></button>
+      </nav>
+
+      <div class="popover glass" id="popMode" role="dialog" aria-label="Reisemodus" hidden>
+        <h2 class="pop-title">Unterwegs mit</h2>
+        <div class="mode-list" id="modeList" role="radiogroup" aria-label="Reisemodus"></div>
+      </div>
+
+      <div class="popover glass" id="popTime" role="dialog" aria-label="Zeit" hidden>
+        <h2 class="pop-title">Welches Wetter?</h2>
+        <div class="seg" id="timeSeg" role="radiogroup" aria-label="Zeit">
+          <button type="button" role="radio" data-v="live" aria-checked="true">Jetzt</button>
+          <button type="button" role="radio" data-v="travel" aria-checked="false" id="travelBtn">Unterwegs</button>
         </div>
-        <div class="opts">
-          <div class="seg" id="timeSeg" role="radiogroup" aria-label="Zeit">
-            <button type="button" role="radio" data-v="live" aria-checked="true" title="Aktuelles Wetter an jedem Punkt">Jetzt</button>
-            <button type="button" role="radio" data-v="travel" aria-checked="false" id="travelBtn" title="Wetter zur Zeit, zu der man dort ankommt">Unterwegs</button>
-          </div>
-          <label class="select" for="departSel">
-            <span>Start</span>
-            <select id="departSel"></select>
-          </label>
-          <label class="select" for="durSel">
-            <span>Dauer</span>
-            <select id="durSel">
-              <option value="auto">Auto</option>
-              <option value="8">8 s</option>
-              <option value="10">10 s</option>
-              <option value="12">12 s</option>
-              <option value="14">14 s</option>
-              <option value="16">16 s</option>
-            </select>
-          </label>
-        </div>
-        </div>
-        <p class="status" id="status" role="status" aria-live="polite"></p>
+        <p class="pop-note" id="timeNote">Aktuelles Wetter an jedem Punkt der Strecke.</p>
+        <label class="row-select" for="departSel">
+          <span>Start</span>
+          <select id="departSel"></select>
+        </label>
+      </div>
+
+      <div class="popover glass" id="popSettings" role="dialog" aria-label="Einstellungen" hidden>
+        <h2 class="pop-title">Einstellungen</h2>
+        <label class="row-select" for="durSel">
+          <span>Flugdauer</span>
+          <select id="durSel">
+            <option value="auto">Automatisch</option>
+            <option value="8">8 Sekunden</option>
+            <option value="10">10 Sekunden</option>
+            <option value="12">12 Sekunden</option>
+            <option value="14">14 Sekunden</option>
+            <option value="16">16 Sekunden</option>
+          </select>
+        </label>
+        <button type="button" class="row-btn" id="showHintBtn">Einführung wieder zeigen</button>
+        <button type="button" class="row-btn" id="resetBtn">Gespeicherten Zustand löschen</button>
+      </div>
+
+      <!-- Abspielen -->
+      <button type="button" class="fab" id="playBtn" aria-label="Abspielen">
+        <svg class="ui-icon i-play" viewBox="0 0 24 24" aria-hidden="true"><path class="fill" d="M8 5.6v12.8c0 .9 1 1.4 1.7.9l9.6-6.4c.6-.4.6-1.4 0-1.8L9.7 4.7C9 4.2 8 4.7 8 5.6z" /></svg>
+        <svg class="ui-icon i-pause" viewBox="0 0 24 24" aria-hidden="true"><rect class="fill" x="6.5" y="5" width="4" height="14" rx="1.3" /><rect class="fill" x="13.5" y="5" width="4" height="14" rx="1.3" /></svg>
+        <svg class="fab-ring" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="33" /></svg>
+      </button>
+
+      <!-- Höhen- und Wetterprofil -->
+      <section class="timeline glass" id="timeline" aria-label="Höhen- und Wetterprofil" hidden>
+        <dl class="stats" id="stats"></dl>
+        <canvas id="profile" aria-label="Profil, tippen oder ziehen zum Spulen"></canvas>
+        <div class="tl-legend" id="legend"></div>
       </section>
 
-      <aside class="panel wx" id="wx" aria-label="Wetter an der aktuellen Position"></aside>
+      <!-- Wetter: Bottom-Sheet (mobil) bzw. Seitenpanel (Desktop) -->
+      <aside class="sheet glass" id="sheet" aria-label="Wetter" data-snap="half">
+        <button type="button" class="sheet-grip" id="sheetGrip" aria-label="Wetterdetails ein- oder ausklappen"><span></span></button>
+        <div class="sheet-compact" id="wxCompact" aria-live="polite"></div>
+        <div class="sheet-body" id="wxBody"></div>
+      </aside>
+    </div>
 
-      <section class="panel timeline" id="timeline" aria-label="Höhen- und Wetterprofil">
-        <div class="tl-head">
-          <button type="button" class="tl-play" id="tlPlay" aria-label="Abspielen">
-            <svg class="i-play" viewBox="0 0 20 20" aria-hidden="true"><path d="M6 4l10 6-10 6z" fill="currentColor" /></svg>
-            <svg class="i-pause" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 4h3.5v12H5zM11.5 4H15v12h-3.5z" fill="currentColor" /></svg>
-          </button>
-          <dl class="stats" id="stats"></dl>
-        </div>
-        <div class="tl-chart">
-          <canvas id="profile" aria-label="Profil, klicken oder ziehen zum Spulen"></canvas>
-          <div class="tl-foot">
-            <div class="tl-legend" id="legend"></div>
-            <p class="credits">
-              Wetter <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> /
-              <a href="https://api.met.no/" target="_blank" rel="noopener">MET Norway</a> ·
-              Karte © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>,
-              <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a>,
-              <a href="https://openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> ·
-              Satellit Esri, Maxar, Earthstar Geographics · Nachtlichter NASA Black Marble ·
-              Gelände Mapzen/AWS · Routing <a href="https://routing.openstreetmap.de/" target="_blank" rel="noopener">FOSSGIS OSRM</a> ·
-              Suche <a href="https://photon.komoot.io/" target="_blank" rel="noopener">Photon</a>
-            </p>
-          </div>
-        </div>
-      </section>
-    </main>
+    <div id="chatRoot"></div>
 
     <script type="module" src="/src/main.ts"></script>
   </body>

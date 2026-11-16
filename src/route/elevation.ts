@@ -1,7 +1,12 @@
-// Höhenprofil aus den Terrarium-Höhenkacheln (AWS Open Data, Mapzen),
-// den gleichen Kacheln, aus denen die 3D-Karte ihr Gelände baut.
+// Höhenprofil: in der Schweiz aus dem swisstopo-Profildienst (swissALTI3D), sonst aus den
+// Terrarium-Höhenkacheln (AWS Open Data, Mapzen), den gleichen Kacheln, aus denen die
+// 3D-Karte ihr Gelände baut. Dazu Anstieg/Abstieg mit Hysterese.
 
 import type { LngLat } from '../geo';
+import { isSwissRoute } from '../swiss/region.ts';
+import { swissProfile } from '../swiss/profile.ts';
+
+export type ElevationSource = 'swisstopo' | 'terrarium';
 
 export const TERRAIN_TILES = 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png';
 
@@ -64,13 +69,80 @@ export async function elevations(points: LngLat[], signal?: AbortSignal): Promis
       return img.data[i] * 256 + img.data[i + 1] + img.data[i + 2] / 256 - 32768;
     }),
   );
-  // Lücken füllen
-  let last = result.find((v) => Number.isFinite(v)) ?? 0;
-  return result.map((v) => {
+  return fillGaps(result);
+}
+
+/**
+ * Höhen für eine Strecke: liegt sie ganz in der Schweiz, vom swisstopo-Profildienst,
+ * sonst (oder bei Fehlern) aus den Terrarium-Kacheln.
+ */
+export async function routeElevations(
+  points: LngLat[],
+  signal?: AbortSignal,
+): Promise<{ ele: number[]; source: ElevationSource }> {
+  if (points.length >= 2 && isSwissRoute(points, 'all')) {
+    try {
+      const ele = await swissProfile(points, signal);
+      return { ele: fillGaps(ele), source: 'swisstopo' };
+    } catch (err) {
+      if (signal?.aborted) throw err;
+      console.warn('swisstopo-Profil nicht verfügbar, nehme Terrarium:', err);
+    }
+  }
+  return { ele: await elevations(points, signal), source: 'terrarium' };
+}
+
+/** NaN aus den Nachbarn füllen (vorwärts, Anfang rückwärts). */
+export function fillGaps(values: number[]): number[] {
+  let last = values.find((v) => Number.isFinite(v)) ?? 0;
+  return values.map((v) => {
     if (Number.isFinite(v)) {
       last = v;
       return v;
     }
     return last;
   });
+}
+
+/** Standard-Schwelle der Hysterese in m: Schwankungen darunter zählen nicht als Anstieg. */
+export const CLIMB_THRESHOLD = 7;
+
+/**
+ * Anstieg und Abstieg mit Hysterese: Eine Höhenänderung zählt erst, wenn sie seit dem letzten
+ * gezählten Punkt mindestens `threshold` Meter beträgt. Rohes Aufsummieren jeder Differenz
+ * überschätzt den Anstieg stark, weil Rauschen des Höhenmodells (Bäume, Brücken,
+ * Kachelkanten) jedes Mal mitgezählt wird.
+ */
+export function climbStats(ele: number[], threshold = CLIMB_THRESHOLD): { gain: number; loss: number } {
+  let gain = 0;
+  let loss = 0;
+  let ref = NaN;
+  for (const v of ele) {
+    if (!Number.isFinite(v)) continue;
+    if (!Number.isFinite(ref)) {
+      ref = v;
+      continue;
+    }
+    const d = v - ref;
+    if (d >= threshold) {
+      gain += d;
+      ref = v;
+    } else if (d <= -threshold) {
+      loss -= d;
+      ref = v;
+    }
+  }
+  return { gain, loss };
+}
+
+/** Rohes Aufsummieren aller positiven/negativen Differenzen (alte Methode, nur zum Vergleich). */
+export function rawClimb(ele: number[]): { gain: number; loss: number } {
+  let gain = 0;
+  let loss = 0;
+  for (let i = 1; i < ele.length; i++) {
+    const d = ele[i] - ele[i - 1];
+    if (d > 0) gain += d;
+    else loss -= d;
+  }
+  return { gain, loss };
 }

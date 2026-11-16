@@ -2,6 +2,10 @@
 
 import type { ExpressionSpecification, StyleSpecification } from 'maplibre-gl';
 import { TERRAIN_TILES } from '../route/elevation';
+import { CH_BBOX } from '../swiss/region';
+
+/** SWISSIMAGE (swisstopo-Orthofoto, 10–25 cm) im Web-Mercator-Kachelschema */
+export const SWISSIMAGE_TILES = 'https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.swissimage/default/current/3857/{z}/{x}/{y}.jpeg';
 
 export const ROUTE_COLOR = '#ff2e93';
 export const ROUTE_GLOW = '#ff7cc4';
@@ -32,6 +36,17 @@ export function buildStyle(): StyleSpecification {
         maxzoom: 19,
         attribution: 'Satellitenbild © Esri, Maxar, Earthstar Geographics',
       },
+      // In der Schweiz das schärfere und aktuellere Luftbild von swisstopo. `bounds` verhindert
+      // Anfragen ausserhalb (dort antwortet der Dienst mit HTTP 400).
+      swissimage: {
+        type: 'raster',
+        tiles: [SWISSIMAGE_TILES],
+        tileSize: 256,
+        minzoom: 8,
+        maxzoom: 20,
+        bounds: CH_BBOX,
+        attribution: 'Luftbild © <a href="https://www.swisstopo.admin.ch" target="_blank">swisstopo</a>',
+      },
       nightlights: {
         type: 'raster',
         tiles: [
@@ -41,19 +56,22 @@ export function buildStyle(): StyleSpecification {
         maxzoom: 8,
         attribution: 'Nachtlichter: NASA Black Marble (GIBS)',
       },
+      // Terrarium hat in Europa ~25–30 m Auflösung (EU-DEM/SRTM); Kacheln über z14 bringen
+      // kaum Detail, kosten aber viermal so viele Anfragen pro Stufe
       'dem-terrain': {
         type: 'raster-dem',
         tiles: [TERRAIN_TILES],
         tileSize: 256,
-        maxzoom: 15,
+        maxzoom: 14,
         encoding: 'terrarium',
         attribution: 'Gelände: Mapzen Terrain Tiles (AWS Open Data)',
       },
+      // Schattierung bis z12 laden, darüber hochskaliert (weich, liegt ohnehin unter dem Luftbild)
       'dem-shade': {
         type: 'raster-dem',
         tiles: [TERRAIN_TILES],
         tileSize: 256,
-        maxzoom: 14,
+        maxzoom: 12,
         encoding: 'terrarium',
       },
       omt: {
@@ -72,6 +90,17 @@ export function buildStyle(): StyleSpecification {
         type: 'raster',
         source: 'satellite',
         paint: { 'raster-fade-duration': 200, 'raster-resampling': 'linear' },
+      },
+      {
+        id: 'swissimage',
+        type: 'raster',
+        source: 'swissimage',
+        minzoom: 8,
+        paint: {
+          'raster-fade-duration': 200,
+          'raster-resampling': 'linear',
+          'raster-opacity': ['interpolate', ['linear'], ['zoom'], 8, 0, 9.5, 1],
+        },
       },
       // Farbstich der Umgebung (Nacht, Abendlicht, Nebel, Schnee)
       { id: 'tint', type: 'background', paint: { 'background-color': '#0a1430', 'background-opacity': 0 } },

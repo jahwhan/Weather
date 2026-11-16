@@ -29,6 +29,13 @@ const SKY_W = 1024;
 const SKY_H = 256;
 const SKY_TOP_ALT = 38; // so hoch reicht die Wolkenkuppel
 
+/** Aufgabe im Leerlauf ausführen (Rückfall: kurzer Timeout, z. B. Safari) */
+function idle(fn: () => void): void {
+  const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
+  if (w.requestIdleCallback) w.requestIdleCallback(fn, { timeout: 1500 });
+  else setTimeout(fn, 120);
+}
+
 export class WeatherFx {
   private map: MlMap;
   private shade: HTMLCanvasElement;
@@ -84,16 +91,28 @@ export class WeatherFx {
     this.cGlow = this.glow.getContext('2d')!;
     void container;
 
+    // Teure Vorberechnungen (Rauschtexturen ~1 Mio. Werte, Sterne) erst im Leerlauf und
+    // in einzelnen Häppchen, damit die erste Karte nicht auf sie wartet.
+    idle(() => {
+      this.skyNoise = fbm(SKY_W, SKY_H, 7, 2, 6, 7, 0.52);
+      idle(() => {
+        this.skySorted = sortedCopy(this.skyNoise!);
+        this.cloudKey = '';
+        idle(() => {
+          this.wispNoise = fbm(512, 256, 3, 2, 5, 23, 0.55);
+          this.wispKey = '';
+        });
+      });
+    });
+  }
+
+  private ensureStatic(): void {
+    if (this.staticReady) return;
+    this.staticReady = true;
     this.makeFlake();
     this.makeStars();
-    // Rauschen etwas später berechnen, damit der erste Frame nicht wartet
-    setTimeout(() => {
-      this.skyNoise = fbm(SKY_W, SKY_H, 7, 2, 6, 7, 0.52);
-      this.skySorted = sortedCopy(this.skyNoise);
-      this.wispNoise = fbm(512, 256, 3, 2, 5, 23, 0.55);
-      this.cloudKey = '';
-    }, 50);
   }
+  private staticReady = false;
 
   start(): void {
     const loop = (t: number) => {
@@ -274,6 +293,7 @@ export class WeatherFx {
     const env = this.env;
     this.k = zoomBlend(this.map.getZoom());
     if (!env || this.k < 0.01) return;
+    this.ensureStatic();
     const k = this.k;
     const cam = cameraFrame(this.map);
     const hY = horizonY(cam);

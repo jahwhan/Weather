@@ -3,7 +3,7 @@
 import { haversine, Polyline, type LngLat } from './geo';
 import type { Place } from './route/geocode';
 import { computeRoute, type Profile, type Route } from './route/routing';
-import { elevations } from './route/elevation';
+import { climbStats, routeElevations, type ElevationSource } from './route/elevation';
 import { fetchWeather, lerpSample, sampleAt } from './weather/fetch';
 import type { PointWeather, WeatherSample, WeatherSource } from './weather/types';
 
@@ -26,6 +26,8 @@ export interface Trip {
   profile: { dist: number; ele: number }[];
   gain: number;
   loss: number;
+  /** Herkunft des Höhenprofils: swisstopo (Strecke ganz in der Schweiz) oder Terrarium-Kacheln */
+  elevationSource?: ElevationSource;
   /** kumulierte Mercator-Längen, für "line-progress" */
   mercCum: Float64Array | null;
 }
@@ -109,13 +111,16 @@ export async function buildTrip(
   // Höhenprofil parallel
   const nProfile = Math.max(40, Math.min(240, Math.round(km * 4)));
   const profPts = line.sample(nProfile);
-  const elevP = elevations(
+  const elevP: Promise<{ ele: number[]; source: ElevationSource | undefined }> = routeElevations(
     profPts.map((p) => p.point),
     signal,
-  ).catch(() => profPts.map(() => 0));
+  ).catch((err) => {
+    if (signal?.aborted) throw err;
+    return { ele: profPts.map(() => 0), source: undefined };
+  });
 
-  const [w, ele] = await Promise.all([weatherP, elevP]);
-  // leicht glätten gegen Kachelrauschen
+  const [w, { ele, source: elevationSource }] = await Promise.all([weatherP, elevP]);
+  // für die Anzeige leicht glätten (Kachelrauschen, Brücken)
   const smooth = ele.map((_, i) => {
     let s = 0;
     let n = 0;
@@ -125,13 +130,9 @@ export async function buildTrip(
     }
     return s / n;
   });
-  let gain = 0;
-  let loss = 0;
-  for (let i = 1; i < smooth.length; i++) {
-    const d = smooth[i] - smooth[i - 1];
-    if (d > 0) gain += d;
-    else loss -= d;
-  }
+  // Anstieg mit Hysterese (7 m) statt jede Differenz aufzusummieren. swisstopo-Höhen
+  // (swissALTI3D) sind kaum verrauscht und werden ungeglättet ausgewertet, Terrarium geglättet.
+  const { gain, loss } = climbStats(elevationSource === 'swisstopo' ? ele : smooth);
   return {
     kind: 'route',
     places,
@@ -143,6 +144,7 @@ export async function buildTrip(
     profile: profPts.map((p, i) => ({ dist: p.dist, ele: smooth[i] })),
     gain: route.profile === 'flight' ? 0 : gain,
     loss: route.profile === 'flight' ? 0 : loss,
+    elevationSource,
     mercCum: mercatorCum(line),
   };
 }

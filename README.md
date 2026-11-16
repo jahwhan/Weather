@@ -105,7 +105,21 @@ Gemessen mit Playwright/Chromium (Software-Renderer, Netz über einen Proxy, Wet
 gemockt, Median aus 3 Läufen). Absolute Werte sind auf echten Geräten deutlich kleiner;
 aussagekräftig ist der Vergleich.
 
-LADEZEIT_TABELLE
+| Messpunkt | vorher | nachher |
+| --- | --- | --- |
+| Erste Darstellung (FCP) | 0,07 s | 0,04 s |
+| Wetter sichtbar, erster Besuch | 18,5 s | 0,35 s |
+| Wetter sichtbar, zweiter Besuch | 17,2 s | 0,19 s |
+| Karte fertig geladen (`load`), erster Besuch | 9,7 s | 10,1 s |
+| Karte fertig geladen (`load`), zweiter Besuch | 8,9 s | 10,9 s |
+
+Das Wetter erscheint nicht mehr erst nach Karte, Route und Intro-Flug, sondern sofort:
+beim zweiten Besuch aus dem Zwischenspeicher, beim ersten direkt nach der Wetterabfrage
+(im Test gemockt mit 0,12 s Antwortzeit; mit echtem Netz kommt die Antwortzeit von
+Open-Meteo dazu). Die Zeit bis zur fertig geladenen Karte hat sich nicht verbessert: Der
+Start zeigt jetzt gleich 3D-Gelände mit Schweizer Luftbild statt eines fast leeren
+Globus, das sind mehr Kacheln. Die Unterschiede liegen hier innerhalb der Streuung der
+Messläufe (8,3–12 s).
 
 Was dazu beigetragen hat: keine Webfonts mehr (System-Schrift), kein Globus-Intro (Start
 direkt über der Schweiz), `preconnect` zu den Kartendiensten, letzter Ort, Kamera und

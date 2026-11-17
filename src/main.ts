@@ -40,6 +40,7 @@ import { avalancheDanger } from './swiss/slf';
 import { isInSwitzerland } from './swiss/region';
 import type { WeatherSample } from './weather/types';
 import { describe } from './weather/conditions';
+import { initPwa, netFailed } from './pwa/register';
 
 setWorkerUrl(workerUrl);
 
@@ -320,6 +321,7 @@ async function loadFromText(text: string, opts: LoadOpts = {}): Promise<void> {
 }
 
 function failText(err: unknown): string {
+  if (netFailed()) return ''; // offline: der PWA-Hinweis „Offline – Stand …“ genügt
   const e = err as Error;
   if (e?.name === 'TimeoutError' || e?.name === 'AbortError') return 'Ein Dienst antwortet gerade nicht. Bitte gleich nochmals versuchen.';
   return 'Laden hat nicht geklappt. Internetverbindung prüfen und nochmals versuchen.';
@@ -1428,6 +1430,9 @@ app.onChatButton = () => void openChat();
 // ?chat=… öffnet den Chat und stellt die Frage direkt (praktisch für Links)
 const chatQ = new URLSearchParams(location.search).get('chat');
 if (chatQ) openChat().then((c) => c.send(chatQ));
+
+// App auf dem Home-Bildschirm: Service Worker, Offline- und Update-Hinweise
+initPwa({ refresh: () => (trip ? loadPanel(trip.places[focusIdx] ?? trip.places[0]) : void loadFromText(input.value.trim() || initialText, { fly: false })) });
 
 // für Tests, Chat und zum Ausprobieren in der Konsole
 Object.assign(window, {

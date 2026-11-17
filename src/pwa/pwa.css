@@ -1,0 +1,177 @@
+/* Wetterflug als App (PWA): Feinschliff für den Home-Bildschirm und die PWA-Hinweise. */
+
+/* ------------------------------------------------------------ kein Gummiband, kein Pull-to-Refresh */
+
+html,
+body {
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  /* Doppeltipp-Zoom aus (verzögert sonst jeden Tipp), Zwei-Finger-Zoom bleibt erlaubt.
+     Die Karte setzt auf ihrer Fläche selbst touch-action: none. */
+  touch-action: manipulation;
+}
+
+/* iOS zoomt beim Fokus in Felder unter 16 px hinein: auf Touch-Geräten mindestens 16 px.
+   (Kein user-scalable=no im viewport – Zoomen muss möglich bleiben.) */
+@media (pointer: coarse) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not(#routeInput),
+  textarea,
+  select {
+    font-size: max(16px, 1rem) !important;
+  }
+}
+
+/* ------------------------------------------------------------ Statusleiste im App-Modus
+   apple-mobile-web-app-status-bar-style = black-translucent: die Seite liegt unter der
+   Statusleiste (weisse Schrift). Die Bedienelemente halten über env(safe-area-inset-top)
+   Abstand; ein dezenter Schleier hält Uhrzeit und Akku über hellem Luftbild lesbar. */
+
+html.pwa-standalone body::before {
+  content: '';
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: calc(env(safe-area-inset-top, 0px) + 10px);
+  background: linear-gradient(180deg, rgba(8, 12, 20, 0.42), rgba(8, 12, 20, 0));
+  pointer-events: none;
+  z-index: 60;
+}
+@media (display-mode: standalone) {
+  body::before {
+    content: '';
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: calc(env(safe-area-inset-top, 0px) + 10px);
+    background: linear-gradient(180deg, rgba(8, 12, 20, 0.42), rgba(8, 12, 20, 0));
+    pointer-events: none;
+    z-index: 60;
+  }
+}
+
+/* ------------------------------------------------------------ Hinweise (Offline, Update, Installieren) */
+
+.pwa-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 6px 6px 14px;
+  border-radius: var(--radius-l, 22px);
+  max-width: min(420px, 100%);
+  min-height: 48px;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--text);
+}
+.pwa-note > * {
+  position: relative;
+  z-index: 3;
+}
+.pwa-note.is-offline {
+  /* rein informativ: kompakt, ohne Knopf */
+  padding: 8px 16px 8px 12px;
+  min-height: 40px;
+  border-radius: var(--radius-pill, 999px);
+  font-size: 14px;
+}
+.pwa-icon {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--fill);
+  color: var(--text-2);
+}
+.is-update .pwa-icon {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.pwa-icon .ui-icon {
+  width: 16px;
+  height: 16px;
+}
+.pwa-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.3;
+}
+.pwa-text b {
+  font-weight: 650;
+}
+.pwa-share .ui-icon {
+  width: 17px;
+  height: 17px;
+  vertical-align: -3px;
+  color: var(--accent);
+}
+.pwa-app-icon {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.2);
+}
+.pwa-btn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--accent);
+  color: var(--accent-contrast, #fff);
+  font-weight: 600;
+  font-size: 14.5px;
+  cursor: pointer;
+}
+.pwa-btn .ui-icon {
+  width: 16px;
+  height: 16px;
+}
+.pwa-btn:disabled {
+  opacity: 0.6;
+}
+.pwa-close {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-2);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.pwa-close::before {
+  /* sichtbarer Kreis, Trefferfläche bleibt 44 px */
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  background: var(--fill);
+  z-index: -1;
+}
+.pwa-close .ui-icon {
+  width: 16px;
+  height: 16px;
+}
+.pwa-btn:focus-visible,
+.pwa-close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pwa-note {
+    animation: none !important;
+  }
+}

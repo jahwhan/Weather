@@ -6,9 +6,9 @@
   "description": "Interaktive 3D-Wetterkarte mit Routen-Flyover und Live-Wetterdaten",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && tsc --noEmit -p tsconfig.sw.json && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.sw.json",
     "test": "node --test test/*.test.ts"
   },
   "dependencies": {

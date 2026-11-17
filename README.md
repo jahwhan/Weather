@@ -42,6 +42,38 @@ dem Browser aufgerufen. Jeder Push auf `main` testet, baut und veröffentlicht d
 - Beim nächsten Besuch erscheinen der letzte Ort und das letzte Wetter sofort
   („Stand 14:20 · wird aktualisiert“) und werden im Hintergrund erneuert.
 
+## Als App installieren
+
+Wetterflug lässt sich wie eine App auf den Home-Bildschirm legen und startet dann ohne
+Browserleisten im Vollbild.
+
+- **iPhone / iPad**: in Safari öffnen → Teilen-Symbol antippen → **Zum Home-Bildschirm**.
+- **Android**: in Chrome öffnen → Menü **⋮** → **App installieren** (oder den Knopf
+  **Installieren** im Hinweis der App antippen).
+- **Desktop** (Chrome, Edge): Installieren-Symbol in der Adressleiste.
+
+Die App zeigt den Hinweis dazu einmal, dezent und erst nach der ersten Bedienung.
+Gibt es eine neue Version, erscheint „Neue Version verfügbar“; **Aktualisieren** lädt sie.
+
+## Offline
+
+Ein Service Worker (`src/pwa/`, gebaut nach `dist/sw.js`) speichert die App selbst, die
+zuletzt gesehenen Kartenkacheln und die letzten Wetterabfragen. Ohne Netz startet die App
+trotzdem, zeigt den letzten Ort mit dem letzten Wetter und den Hinweis
+„Offline – Stand 14:20“. Sobald die Verbindung zurück ist, wird aktualisiert.
+
+| Was | Strategie | Grenzen |
+| --- | --- | --- |
+| Seitenaufruf | zuerst Netz (3 s), sonst gespeicherte App | – |
+| App-Dateien (gehasht), Icons, Manifest | aus dem Speicher (vorab geladen) | je Version, alte werden gelöscht |
+| Kartenkacheln, Gelände, Luftbild | aus dem Speicher, sonst Netz | 800 Kacheln, 30 Tage |
+| TileJSON/Stil-JSON | Speicher sofort, im Hintergrund erneuern | 30 Einträge, 7 Tage |
+| Wetter, Messwerte, Suche, ÖV, Routing | zuerst Netz (4 s, wenn etwas gespeichert ist), sonst Speicher | 60 Einträge, 12 Stunden |
+| Chat (n8n), alle POST-Abfragen | nie gespeichert | – |
+
+Die Regeln stehen als reine Funktionen in `src/pwa/rules.ts` (Tests: `test/pwa-rules.test.ts`).
+Die Icons erzeugt `node scripts/icons.mjs` (Playwright/Chromium) nach `public/icons/`.
+
 ## Assistent und n8n
 
 Der Chat versteht ohne Server einfache Wünsche (lokaler deutscher Intent-Parser,
@@ -165,6 +197,9 @@ src/
   map/               Kartenstil, Szene (Licht/Himmel/Schatten), Kamera-Geometrie
   fx/                Effekt-Ebenen und Rauschen für Wolken
   ui/                Design-Tokens, Panel/Bottom-Sheet, Wetter-App, Profil, Symbole
+  pwa/               Service Worker, Cache-Regeln, Installations-, Update- und Offline-Hinweis
+public/              Web-App-Manifest und App-Icons
+scripts/             Icon-Generator, Vite-Plugin für den Service Worker
 n8n/                 importierbarer Workflow für den Assistenten
 docs/                Datenqualität
 ```

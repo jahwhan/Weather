@@ -22,6 +22,7 @@ import {
   type OmResponse,
 } from './fetch.ts';
 import { MODEL_LABEL, type WeatherSample, type WeatherSource } from './types.ts';
+import { stampCached } from '../pwa/stamp.ts';
 
 export interface DailyForecast {
   /** YYYY-MM-DD Ortszeit */
@@ -231,7 +232,7 @@ async function omRequest(lat: number, lon: number, signal: AbortSignal | undefin
   if (!res.ok) throw new HttpError(res.status, `Open-Meteo HTTP ${res.status}`);
   const json = (await res.json()) as OmResponse | { error: true; reason: string };
   if ('error' in json) throw new HttpError(400, json.reason);
-  return parseOpenMeteoDetail(json, lat, lon, models);
+  return stampCached(parseOpenMeteoDetail(json, lat, lon, models), res);
 }
 
 const omNum = (b: OmBlock | undefined, name: string, i: number, models: string[] | null) =>
@@ -344,7 +345,7 @@ async function fetchDetailMetNo(lat: number, lon: number, signal?: AbortSignal):
   const res = await fetch(url, { signal: withTimeout(signal, 15000) });
   if (!res.ok) throw new HttpError(res.status, `MET Norway HTTP ${res.status}`);
   const json = (await res.json()) as MetResponse;
-  return parseMetDetail(json, lat, lon);
+  return stampCached(parseMetDetail(json, lat, lon), res);
 }
 
 export interface MetResponse {

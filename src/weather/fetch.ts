@@ -10,6 +10,7 @@ import { MODEL_LABEL, type PointWeather, type WeatherSample, type WeatherSource 
 import { angleDiff } from '../geo.ts';
 import { HttpError, withTimeout } from '../swiss/http.ts';
 import { isInSwitzerland } from '../swiss/region.ts';
+import { cachedAt } from '../pwa/stamp.ts';
 
 /** Reihenfolge = Vorrang beim Zusammenführen: feinstes Modell zuerst. */
 export const CH_MODELS = ['meteoswiss_icon_ch1', 'meteoswiss_icon_ch2', 'best_match'];
@@ -178,7 +179,7 @@ async function fetchOpenMeteo(
   if (!Array.isArray(json) && 'error' in json) throw new HttpError(400, json.reason);
   const list = Array.isArray(json) ? json : [json as OmResponse];
   if (list.length !== points.length) throw new Error('Open-Meteo: unerwartete Anzahl Orte');
-  return parseOpenMeteo(list, points, models);
+  return parseOpenMeteo(list, points, models, cachedAt(res) ?? undefined);
 }
 
 /** Antwort(en) von Open-Meteo in PointWeather umwandeln (exportiert für Tests). */
@@ -296,7 +297,7 @@ async function fetchMetNo(p: { lat: number; lon: number }, signal?: AbortSignal)
     ...metZone(p.lat, p.lon, now),
     current,
     hourly,
-    fetchedAt: now,
+    fetchedAt: cachedAt(res) ?? now,
     model: MODEL_LABEL['met-no'],
   };
 }

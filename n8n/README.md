@@ -15,7 +15,7 @@ Getestet am 17.11.2026 (manuell und produktiv): „Kann ich morgen aufs Matterho
 
 ```
 Webhook (POST /webhook/wetterflug-chat, CORS: https://jahwhan.github.io)
-  → Anfrage prüfen (Code: Eingabe kürzen, Limit 1500 Nachrichten/Tag und 60 pro Sitzung)
+  → Anfrage prüfen (Code: Eingabe kürzen, Limit 10 Nachrichten/Tag und 10 pro Sitzung)
   → Im Limit?
      ja  → AI Agent ── Claude Haiku (claude-haiku-5-5, max. 700 Tokens)
      │              ── Chat-Gedächtnis (Window Buffer, Schlüssel = sessionId, 8 Nachrichten)

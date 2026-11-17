@@ -24,7 +24,7 @@
       "parameters": {
         "mode": "runOnceForAllItems",
         "language": "javaScript",
-        "jsCode": "// Eingabe kürzen und ein Kostenlimit pro Tag und pro Sitzung erzwingen (Zähler in Static Data, nur Produktiv-Läufe).\nconst MAX_PER_DAY = 1500;\nconst MAX_PER_SESSION = 60;\nconst body = $input.first().json.body || {};\nconst sd = $getWorkflowStaticData('global');\nconst day = new Date().toISOString().slice(0, 10);\nif (sd.day !== day) { sd.day = day; sd.total = 0; sd.sessions = {}; }\nconst sid = String(body.sessionId || 'anon').slice(0, 64);\nconst used = sd.sessions[sid] || 0;\nlet allowed = true, reason = '';\nif (sd.total >= MAX_PER_DAY) { allowed = false; reason = 'total'; }\nelse if (used >= MAX_PER_SESSION) { allowed = false; reason = 'session'; }\nif (allowed) { sd.total += 1; sd.sessions[sid] = used + 1; }\nconst chatInput = String(body.chatInput || '').slice(0, 600).trim();\nlet context = body.context && typeof body.context === 'object' ? body.context : {};\nconst contextJson = JSON.stringify(context).slice(0, 1500);\nreturn [{ json: { chatInput: chatInput || 'Hallo', sessionId: sid, contextJson, allowed, reason } }];"
+        "jsCode": "// Eingabe kürzen und ein Kostenlimit pro Tag und pro Sitzung erzwingen (Zähler in Static Data, nur Produktiv-Läufe).\nconst MAX_PER_DAY = 10;\nconst MAX_PER_SESSION = 10;\nconst body = $input.first().json.body || {};\nconst sd = $getWorkflowStaticData('global');\nconst day = new Date().toISOString().slice(0, 10);\nif (sd.limitDay !== day) { sd.limitDay = day; sd.limitTotal = 0; sd.limitSessions = {}; }\nconst sid = String(body.sessionId || 'anon').slice(0, 64);\nconst used = sd.limitSessions[sid] || 0;\nlet allowed = true, reason = '';\nif (sd.limitTotal >= MAX_PER_DAY) { allowed = false; reason = 'total'; }\nelse if (used >= MAX_PER_SESSION) { allowed = false; reason = 'session'; }\nif (allowed) { sd.limitTotal += 1; sd.limitSessions[sid] = used + 1; }\nconst chatInput = String(body.chatInput || '').slice(0, 600).trim();\nlet context = body.context && typeof body.context === 'object' ? body.context : {};\nconst contextJson = JSON.stringify(context).slice(0, 1500);\nreturn [{ json: { chatInput: chatInput || 'Hallo', sessionId: sid, contextJson, allowed, reason, remainingToday: Math.max(0, MAX_PER_DAY - sd.limitTotal) } }];"
       }
     },
     {
@@ -178,7 +178,7 @@
       "parameters": {
         "mode": "runOnceForAllItems",
         "language": "javaScript",
-        "jsCode": "const r = $input.first().json.reason;\nconst reply = r === 'session'\n  ? 'Dieses Gespräch ist schon sehr lang – lade die Seite neu, dann geht es weiter. Einfache Befehle wie „Zürich nach Luzern“ funktionieren trotzdem.'\n  : 'Das Tageskontingent des KI-Assistenten ist aufgebraucht. Einfache Befehle wie „Zürich nach Luzern“ oder „Spiel ab“ funktionieren weiterhin.';\nreturn [{ json: { reply, actions: [] } }];"
+        "jsCode": "const r = $input.first().json.reason;\nconst reply = r === 'session'\n  ? 'Für dieses Gespräch ist das Kontingent aufgebraucht. Einfache Befehle wie „Zürich nach Luzern“ oder „Spiel ab“ funktionieren trotzdem.'\n  : 'Der KI-Assistent hat sein Tageskontingent von 10 Nachrichten erreicht, morgen geht es weiter. Einfache Befehle wie „Zürich nach Luzern“ oder „Spiel ab“ funktionieren weiterhin.';\nreturn [{ json: { reply, actions: [] } }];"
       }
     }
   ],

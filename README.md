@@ -60,7 +60,7 @@ Aktionen: `flyTo`, `showPlace`, `setRoute`, `play`, `pause`, `setMode`, `setTime
 öffentliche Webhook-URL steht als `VITE_N8N_CHAT_URL` in `.env` und wird beim Build
 eingebaut. Eine andere URL lässt sich im Chat unter dem Zahnrad eintragen (gespeichert im
 Browser). Ist n8n nicht erreichbar, antwortet der lokale Assistent. Im Repository liegen
-keine Schlüssel; der Workflow begrenzt die Kosten (1500 Nachrichten pro Tag, 60 pro Sitzung).
+keine Schlüssel; der Workflow begrenzt die Kosten (10 Nachrichten pro Tag, 10 pro Sitzung).
 
 ## Bergwetter
 

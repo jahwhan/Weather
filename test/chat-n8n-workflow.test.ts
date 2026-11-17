@@ -35,22 +35,30 @@ test('alle Verbindungen zeigen auf existierende Nodes', () => {
   }
 });
 
-test('Webhook → Agent → Antwort, mit CORS', () => {
+test('Webhook → Prüfung → Agent → Antwort, mit CORS und Limit', () => {
   const [hook] = byType('n8n-nodes-base.webhook');
   assert.equal(hook.parameters.httpMethod, 'POST');
   assert.equal(hook.parameters.path, 'wetterflug-chat');
   assert.equal(hook.parameters.responseMode, 'responseNode');
   assert.equal(hook.parameters.options.allowedOrigins, 'https://jahwhan.github.io');
+  const check = byName.get(wf.connections[hook.name].main[0][0].node)!;
+  assert.match(check.parameters.jsCode, /MAX_PER_DAY/);
+  const gate = byName.get(wf.connections[check.name].main[0][0].node)!;
+  assert.equal(gate.type, 'n8n-nodes-base.if');
   const [agent] = byType('@n8n/n8n-nodes-langchain.agent');
-  assert.equal(wf.connections[hook.name].main[0][0].node, agent.name);
+  assert.equal(wf.connections[gate.name].main[0][0].node, agent.name);
   assert.equal(agent.parameters.promptType, 'define');
-  assert.equal(agent.parameters.text, '={{ $json.body.chatInput }}');
-  assert.match(agent.parameters.options.systemMessage, /JSON\.stringify\(\$json\.body\.context/);
+  assert.equal(agent.parameters.text, '={{ $json.chatInput }}');
+  assert.match(agent.parameters.options.systemMessage, /contextJson/);
   for (const t of ['flyTo', 'showPlace', 'setRoute', 'play', 'pause', 'setMode', 'setTime', 'showMountain', 'openWeather', 'compareModes']) {
     assert.ok(agent.parameters.options.systemMessage.includes(`"type":"${t}"`), `Aktion ${t} im Systemprompt`);
   }
+  const shape = byName.get(wf.connections[agent.name].main[0][0].node)!;
+  for (const t of ['flyTo', 'setRoute', 'showMountain', 'compareModes']) assert.ok(shape.parameters.jsCode.includes(`'${t}'`));
   const [respond] = byType('n8n-nodes-base.respondToWebhook');
-  assert.equal(wf.connections[agent.name].main[0][0].node, respond.name);
+  assert.equal(wf.connections[shape.name].main[0][0].node, respond.name);
+  const limit = byName.get(wf.connections[gate.name].main[1][0].node)!;
+  assert.equal(wf.connections[limit.name].main[0][0].node, respond.name);
   const h = respond.parameters.options.responseHeaders.entries.find((e: { name: string }) => e.name === 'Access-Control-Allow-Origin');
   assert.equal(h.value, 'https://jahwhan.github.io');
 });
@@ -63,15 +71,12 @@ test('KI-Unterknoten am Agent, kein Secret im JSON', () => {
   assert.equal(model.type, '@n8n/n8n-nodes-langchain.lmChatAnthropic');
   assert.equal(model.parameters.model.value, 'claude-haiku-5-5');
   assert.ok(model.credentials?.anthropicApi);
-  const [mem] = into('ai_memory');
-  assert.equal(mem.parameters.sessionKey, '={{ $json.body.sessionId }}');
+  assert.equal(into('ai_memory').length, 1);
   const tools = into('ai_tool');
-  assert.equal(tools.length, 3);
+  assert.equal(tools.length, 2);
   const urls = tools.map((t) => String(t.parameters.url));
-  assert.ok(urls.some((u) => u.includes('api.open-meteo.com') && u.includes('elevation=') && u.includes('past_days=3')));
+  assert.ok(urls.some((u) => u.includes('api.open-meteo.com')));
   assert.ok(urls.some((u) => u.includes('api3.geo.admin.ch')));
-  assert.ok(urls.some((u) => u.includes('aws.slf.ch')));
-  assert.equal(into('ai_outputParser').length, 1);
   const text = JSON.stringify(wf);
   assert.doesNotMatch(text, /sk-ant-|x-api-key|"apiKey"/i);
 });

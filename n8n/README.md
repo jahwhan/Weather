@@ -2,21 +2,36 @@
 
 Der Chat in Wetterflug funktioniert ohne Server: Ein lokaler Intent-Parser versteht die wichtigsten Befehle direkt im Browser. Mit diesem n8n-Workflow beantwortet stattdessen ein Sprachmodell (Anthropic, `claude-haiku-5-5`) die Fragen und steuert die App über dasselbe Aktionsprotokoll. Fällt n8n aus, springt automatisch wieder der lokale Assistent ein.
 
+## Status
+
+Deployt und aktiv: Workflow „Wetterflug-Assistent (Chat-API)“, Produktions-URL
+`https://bomboclatt.app.n8n.cloud/webhook/wetterflug-chat`. Die App nutzt sie über
+`VITE_N8N_CHAT_URL` in der eingecheckten `.env` (die URL ist öffentlich, kein Geheimnis).
+Getestet am 17.11.2026 (manuell und produktiv): „Kann ich morgen aufs Matterhorn?“ ergibt
+`showMountain` + `setTime`; „Von Zürich nach Luzern mit dem Zug, und dann los“ ergibt
+`setRoute` (transit) + `play`, Antwortzeit 3–4 s.
+
 ## Aufbau
 
 ```
 Webhook (POST /webhook/wetterflug-chat, CORS: https://jahwhan.github.io)
-  → AI Agent  ── Anthropic Chat Model (claude-haiku-5-5)
-     │         ── Chat-Gedächtnis (Window Buffer, Schlüssel = sessionId, 10 Nachrichten)
-     │         ── Tools: Gipfelwetter (Open-Meteo), Ortssuche (geo.admin), SLF-Lawinenbulletin
-     │         ── JSON-Antwort (Structured Output Parser: {reply, actions})
+  → Anfrage prüfen (Code: Eingabe kürzen, Limit 1500 Nachrichten/Tag und 60 pro Sitzung)
+  → Im Limit?
+     ja  → AI Agent ── Claude Haiku (claude-haiku-5-5, max. 700 Tokens)
+     │              ── Chat-Gedächtnis (Window Buffer, Schlüssel = sessionId, 8 Nachrichten)
+     │              ── Tools: Gipfelwetter (Open-Meteo mit elevation), Ortssuche Schweiz (geo.admin)
+     │     → Antwort formen (Code: JSON aus der Modellausgabe, nur erlaubte Aktionen)
+     nein → Limit-Antwort (freundlicher Hinweis, keine Aktionen)
   → Respond to Webhook (JSON, Access-Control-Allow-Origin)
 ```
+
+Die SLF-Lawinengefahr fragt der Workflow nicht selbst ab (das Bulletin ist ~420 KB gross):
+Bei Bergfragen liefert er `showMountain`, und die App berechnet das Urteil inklusive SLF.
 
 ## Einrichten
 
 1. **Importieren:** In n8n *Workflows → Import from File* und `wetterflug-assistent.json` wählen.
-2. **Anthropic-Credential anlegen:** *Credentials → New → Anthropic*, API-Key eintragen. Danach im Node *Anthropic Chat Model* dieses Credential auswählen (im JSON steht nur ein Platzhalter, kein Schlüssel).
+2. **Anthropic-Credential anlegen:** *Credentials → New → Anthropic*, API-Key eintragen. Danach im Node *Claude Haiku* dieses Credential auswählen (im JSON steht nur ein Platzhalter, kein Schlüssel).
 3. **Herkunft prüfen:** Im Webhook-Node steht unter *Options → Allowed Origins (CORS)* `https://jahwhan.github.io`. Für lokale Tests zusätzlich z. B. `http://localhost:5173` eintragen (kommagetrennt). Den gleichen Wert ggf. im Header des Nodes *Antwort senden* anpassen.
 4. **Aktivieren:** Workflow speichern und oben rechts auf *Active* stellen.
 5. **Produktions-URL kopieren:** Im Webhook-Node unter *Production URL*, z. B. `https://n8n.example.ch/webhook/wetterflug-chat`.

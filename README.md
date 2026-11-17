@@ -56,9 +56,11 @@ Fragen und steuert die App über ein JSON-Protokoll:
 Aktionen: `flyTo`, `showPlace`, `setRoute`, `play`, `pause`, `setMode`, `setTime`,
 `showMountain`, `openWeather`, `compareModes`. Der importierbare Workflow liegt in
 [`n8n/wetterflug-assistent.json`](n8n/wetterflug-assistent.json), die Anleitung in
-[`n8n/README.md`](n8n/README.md). Die Workflow-URL kommt entweder beim Build über
-`VITE_N8N_CHAT_URL` hinein oder wird im Chat unter dem Zahnrad eingetragen
-(gespeichert im Browser). Im Repository liegen keine Schlüssel.
+[`n8n/README.md`](n8n/README.md). Der Workflow läuft produktiv auf n8n Cloud; die
+öffentliche Webhook-URL steht als `VITE_N8N_CHAT_URL` in `.env` und wird beim Build
+eingebaut. Eine andere URL lässt sich im Chat unter dem Zahnrad eintragen (gespeichert im
+Browser). Ist n8n nicht erreichbar, antwortet der lokale Assistent. Im Repository liegen
+keine Schlüssel; der Workflow begrenzt die Kosten (1500 Nachrichten pro Tag, 60 pro Sitzung).
 
 ## Bergwetter
 
@@ -97,7 +99,7 @@ Zahlen stehen in [`docs/datenqualitaet.md`](docs/datenqualitaet.md). Kurzfassung
 
 Nicht live geprüft werden konnte: grosse Teile der Open-Meteo-Abfragen (das Tageslimit
 der geteilten Test-IP war erschöpft; getestet mit Mocks und einzelnen Live-Abfragen),
-Photon (nicht erreichbar) und der n8n-Workflow in einer echten n8n-Instanz.
+Photon (nicht erreichbar) und der CORS-Preflight des n8n-Webhooks aus dem Browser (n8n Cloud ist aus der Testumgebung nicht direkt erreichbar; der Workflow selbst lief erfolgreich über die n8n-Schnittstelle).
 
 ## Ladezeit
 
